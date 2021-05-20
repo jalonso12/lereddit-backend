@@ -22,7 +22,9 @@
     "@mikro-orm/cli": "^4.5.5",
     "@mikro-orm/core": "^4.5.5",
     "@mikro-orm/migrations": "^4.5.5",
-    "@mikro-orm/postgresql": "^4.5.5"
+    "@mikro-orm/postgresql": "^4.5.5",
+    "dotenv": "^9.0.2",
+    "pg": "^8.6.0"
   },
   "mikro-orm": {
     "useTsNode": true,
