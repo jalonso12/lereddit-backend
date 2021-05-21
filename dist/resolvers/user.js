@@ -70,13 +70,47 @@ UserResponse = __decorate([
 let UserResolver = class UserResolver {
     register(options, { em }) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (options.username.length <= 4) {
+                return {
+                    errors: [
+                        {
+                            field: 'username',
+                            message: 'length must be at least 4 characters long',
+                        },
+                    ],
+                };
+            }
+            if (options.password.length <= 8) {
+                return {
+                    errors: [
+                        {
+                            field: 'password',
+                            message: 'password must be at least 8 characters long',
+                        },
+                    ],
+                };
+            }
             const hashedPassword = yield argon2_1.default.hash(options.password);
             const user = em.create(User_1.User, {
                 username: options.username,
                 password: hashedPassword,
             });
-            yield em.persistAndFlush(user);
-            return user;
+            try {
+                yield em.persistAndFlush(user);
+            }
+            catch (err) {
+                if (err.code === '23505' || err.detail.includes('already exists')) {
+                    return {
+                        errors: [
+                            {
+                                field: 'username',
+                                message: 'username already taken',
+                            },
+                        ],
+                    };
+                }
+            }
+            return { user };
         });
     }
     login(options, { em }) {
@@ -110,7 +144,7 @@ let UserResolver = class UserResolver {
     }
 };
 __decorate([
-    type_graphql_1.Mutation(() => User_1.User),
+    type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('options')),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
